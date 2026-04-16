@@ -67,5 +67,13 @@ async def poll_once() -> None:
 
 async def run_poller() -> None:
     while True:
-        await poll_once()
-        await asyncio.sleep(settings.poll_interval_minutes * 60)
+        try:
+            await poll_once()
+        except asyncio.CancelledError:
+            raise
+        except Exception as exc:
+            logger.error("Unexpected error in run_poller: %s", exc, exc_info=True)
+        try:
+            await asyncio.sleep(settings.poll_interval_minutes * 60)
+        except asyncio.CancelledError:
+            raise

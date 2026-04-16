@@ -165,3 +165,58 @@ async def get_events(
         e["duration_min"] = max(5, int((end - start).total_seconds() / 60))
 
     return events
+
+
+_OVERLAY_COLORS = [
+    "#3b82f6", "#ef4444", "#10b981", "#f59e0b",
+    "#8b5cf6", "#ec4899", "#14b8a6", "#f97316",
+]
+
+
+async def get_overlay_data(
+    conn: aiosqlite.Connection,
+    from_dt: datetime,
+    to_dt: datetime,
+    group_by: str,  # "day" | "week" | "month"
+) -> list[dict]:
+    conn.row_factory = aiosqlite.Row
+    async with conn.execute(
+        """
+        SELECT timestamp, value_mgdl FROM glucose_readings
+        WHERE timestamp BETWEEN ? AND ?
+        ORDER BY timestamp
+        """,
+        (from_dt.isoformat(), to_dt.isoformat()),
+    ) as cur:
+        rows = [dict(r) for r in await cur.fetchall()]
+
+    series: dict[str, dict[int, list[int]]] = {}
+
+    for r in rows:
+        dt = datetime.fromisoformat(r["timestamp"])
+        if group_by == "day":
+            key = dt.strftime("%a %d/%m")
+            x = dt.hour
+        elif group_by == "week":
+            week_num = (dt.date() - from_dt.date()).days // 7 + 1
+            key = f"Semana {week_num}"
+            x = dt.weekday()
+        else:  # month
+            key = dt.strftime("%b %Y")
+            x = dt.day
+
+        series.setdefault(key, {}).setdefault(x, []).append(r["value_mgdl"])
+
+    result = []
+    for i, (label, by_x) in enumerate(series.items()):
+        averaged = [
+            {"x": x, "value": round(sum(vals) / len(vals), 1)}
+            for x, vals in sorted(by_x.items())
+        ]
+        result.append({
+            "label": label,
+            "color": _OVERLAY_COLORS[i % len(_OVERLAY_COLORS)],
+            "data": averaged,
+        })
+
+    return result

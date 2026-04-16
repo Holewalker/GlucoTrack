@@ -30,10 +30,7 @@ services:
     depends_on:
       - web
     restart: unless-stopped
-    environment:
-      - DOMAIN=${DOMAIN}
-      - DASH_USER=${DASH_USER}
-      - DASH_PASSWORD_HASH=${DASH_PASSWORD_HASH}
+    env_file: .env
 
   duckdns:
     image: lscr.io/linuxserver/duckdns:latest

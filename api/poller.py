@@ -35,16 +35,19 @@ async def poll_once() -> None:
             _token, _account_id = await libre_client.authenticate(
                 settings.libre_email, settings.libre_password
             )
+        connections = await libre_client.get_connections(_token, _account_id)
+        connection = connections[0]
         if not _patient_id:
-            _patient_id = settings.libre_patient_id or await libre_client.get_patient_id(
-                _token, _account_id
-            )
+            _patient_id = settings.libre_patient_id or connection["patientId"]
 
         data = await libre_client.get_cgm_data(_token, _account_id, _patient_id)
 
         readings = [parse_reading(r) for r in data.get("graphData", [])]
         if data.get("glucoseMeasurement"):
             readings.append(parse_reading(data["glucoseMeasurement"]))
+        # connections endpoint has the freshest current reading (updates every ~1 min)
+        if connection.get("glucoseMeasurement"):
+            readings.append(parse_reading(connection["glucoseMeasurement"]))
 
         async with aiosqlite.connect(settings.db_path) as conn:
             await database.upsert_readings(conn, readings)

@@ -76,20 +76,28 @@ async def authenticate(
         return await _do(c)
 
 
-async def get_patient_id(
+async def get_connections(
     token: str, account_id: str, client: httpx.AsyncClient | None = None
-) -> str:
-    async def _do(c: httpx.AsyncClient) -> str:
+) -> list[dict]:
+    """Returns the full connections list, each entry includes patientId and glucoseMeasurement."""
+    async def _do(c: httpx.AsyncClient) -> list[dict]:
         body = await _get(
             c, f"{BASE_URL}/llu/connections",
             headers=_auth_headers(token, account_id),
         )
-        return body["data"][0]["patientId"]
+        return body["data"]
 
     if client is not None:
         return await _do(client)
     async with httpx.AsyncClient() as c:
         return await _do(c)
+
+
+async def get_patient_id(
+    token: str, account_id: str, client: httpx.AsyncClient | None = None
+) -> str:
+    connections = await get_connections(token, account_id, client=client)
+    return connections[0]["patientId"]
 
 
 async def get_cgm_data(

@@ -5,7 +5,8 @@ from api.libre_client import authenticate, get_patient_id, get_cgm_data
 AUTH_RESPONSE = {
     "status": 0,
     "data": {
-        "authTicket": {"token": "test-jwt-token", "expires": 9999999999, "duration": 1}
+        "authTicket": {"token": "test-jwt-token", "expires": 9999999999, "duration": 1},
+        "user": {"id": "user-uuid-123"},
     },
 }
 
@@ -39,13 +40,14 @@ GRAPH_RESPONSE = {
 }
 
 
-async def test_authenticate_returns_token():
+async def test_authenticate_returns_token_and_account_id():
     transport = httpx.MockTransport(
         lambda req: httpx.Response(200, json=AUTH_RESPONSE)
     )
     async with httpx.AsyncClient(transport=transport) as client:
-        token = await authenticate("email@test.com", "pass", client=client)
+        token, account_id = await authenticate("email@test.com", "pass", client=client)
     assert token == "test-jwt-token"
+    assert account_id == "user-uuid-123"
 
 
 async def test_get_patient_id():
@@ -53,7 +55,7 @@ async def test_get_patient_id():
         lambda req: httpx.Response(200, json=CONNECTIONS_RESPONSE)
     )
     async with httpx.AsyncClient(transport=transport) as client:
-        pid = await get_patient_id("token", client=client)
+        pid = await get_patient_id("token", "account-id", client=client)
     assert pid == "patient-123"
 
 
@@ -62,6 +64,6 @@ async def test_get_cgm_data_returns_data():
         lambda req: httpx.Response(200, json=GRAPH_RESPONSE)
     )
     async with httpx.AsyncClient(transport=transport) as client:
-        data = await get_cgm_data("token", "patient-123", client=client)
+        data = await get_cgm_data("token", "account-id", "patient-123", client=client)
     assert data["glucoseMeasurement"]["ValueInMgPerDl"] == 95
     assert len(data["graphData"]) == 1

@@ -1,11 +1,19 @@
+import hashlib
 import httpx
 
 BASE_URL = "https://api-eu.libreview.io"
 _HEADERS = {
-    "product": "llu.android",
-    "version": "4.2.1",
+    "accept-encoding": "gzip",
+    "cache-control": "no-cache",
+    "connection": "Keep-Alive",
     "content-type": "application/json",
+    "product": "llu.android",
+    "version": "4.17.0",
 }
+
+
+def _account_id_hash(account_id: str) -> str:
+    return hashlib.sha256(str(account_id).encode("utf-8")).hexdigest()
 
 
 class LibreViewError(Exception):
@@ -22,8 +30,14 @@ def _check_status(body: dict) -> None:
         raise LibreViewError(status, msg)
 
 
-def _auth_headers(token: str) -> dict:
-    return {**_HEADERS, "authorization": f"Bearer {token}"}
+def _auth_headers(token: str, account_id: str) -> dict:
+    hashed = _account_id_hash(account_id)
+    return {
+        **_HEADERS,
+        "authorization": f"Bearer {token}",
+        "Account-Id": hashed,
+        "account-id": hashed,
+    }
 
 
 async def _post(client: httpx.AsyncClient, url: str, **kwargs) -> dict:
@@ -44,14 +58,17 @@ async def _get(client: httpx.AsyncClient, url: str, **kwargs) -> dict:
 
 async def authenticate(
     email: str, password: str, client: httpx.AsyncClient | None = None
-) -> str:
-    async def _do(c: httpx.AsyncClient) -> str:
+) -> tuple[str, str]:
+    """Returns (token, account_id)."""
+    async def _do(c: httpx.AsyncClient) -> tuple[str, str]:
         body = await _post(
             c, f"{BASE_URL}/llu/auth/login",
             json={"email": email, "password": password},
             headers=_HEADERS,
         )
-        return body["data"]["authTicket"]["token"]
+        token = body["data"]["authTicket"]["token"]
+        account_id = body["data"]["user"]["id"]
+        return token, account_id
 
     if client is not None:
         return await _do(client)
@@ -60,10 +77,13 @@ async def authenticate(
 
 
 async def get_patient_id(
-    token: str, client: httpx.AsyncClient | None = None
+    token: str, account_id: str, client: httpx.AsyncClient | None = None
 ) -> str:
     async def _do(c: httpx.AsyncClient) -> str:
-        body = await _get(c, f"{BASE_URL}/llu/connections", headers=_auth_headers(token))
+        body = await _get(
+            c, f"{BASE_URL}/llu/connections",
+            headers=_auth_headers(token, account_id),
+        )
         return body["data"][0]["patientId"]
 
     if client is not None:
@@ -73,12 +93,13 @@ async def get_patient_id(
 
 
 async def get_cgm_data(
-    token: str, patient_id: str, client: httpx.AsyncClient | None = None
+    token: str, account_id: str, patient_id: str,
+    client: httpx.AsyncClient | None = None,
 ) -> dict:
     async def _do(c: httpx.AsyncClient) -> dict:
         body = await _get(
             c, f"{BASE_URL}/llu/connections/{patient_id}/graph",
-            headers=_auth_headers(token),
+            headers=_auth_headers(token, account_id),
         )
         return body["data"]
 

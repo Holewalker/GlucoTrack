@@ -34,7 +34,7 @@ export function EventsTable({ period }: { period: Period }) {
                 {format(new Date(e.started_at), "dd/MM HH:mm", { locale: es })}
               </td>
               <td>{e.duration_min} min</td>
-              <td style={{ color: e.type === "hypo" ? "#ef4444" : "#f59e0b" }}>
+              <td style={{ color: e.type === "hypo" ? "#c05050" : "#c18937" }}>
                 {e.extreme} mg/dL
               </td>
             </tr>

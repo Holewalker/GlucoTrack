@@ -52,8 +52,8 @@ export function GlucoseChart({ period }: Props) {
             <YAxis domain={[40, 300]} />
             <Tooltip />
             <Legend />
-            <ReferenceLine y={TARGET_LOW} stroke="#ef4444" strokeDasharray="4 4" />
-            <ReferenceLine y={TARGET_HIGH} stroke="#f59e0b" strokeDasharray="4 4" />
+            <ReferenceLine y={TARGET_LOW} stroke="#c05050" strokeDasharray="4 4" />
+            <ReferenceLine y={TARGET_HIGH} stroke="#c18937" strokeDasharray="4 4" />
             {overlaySeries.map((series) => (
               <Line
                 key={series.label}
@@ -79,12 +79,12 @@ export function GlucoseChart({ period }: Props) {
             <XAxis dataKey="time" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
             <YAxis domain={[40, 300]} />
             <Tooltip />
-            <ReferenceLine y={TARGET_LOW} stroke="#ef4444" strokeDasharray="4 4" label="Mín" />
-            <ReferenceLine y={TARGET_HIGH} stroke="#f59e0b" strokeDasharray="4 4" label="Máx" />
+            <ReferenceLine y={TARGET_LOW} stroke="#c05050" strokeDasharray="4 4" label="Mín" />
+            <ReferenceLine y={TARGET_HIGH} stroke="#c18937" strokeDasharray="4 4" label="Máx" />
             <Line
               type="monotone"
               dataKey="value"
-              stroke="#3b82f6"
+              stroke="#7d9e72"
               dot={false}
               strokeWidth={2}
               name="mg/dL"

@@ -3,9 +3,9 @@ import { useTimeInRange } from "../hooks/useGlucoseData";
 import type { Period } from "../api/client";
 
 const COLORS: Record<string, string> = {
-  "En rango": "#10b981",
-  "Alto": "#f59e0b",
-  "Bajo": "#ef4444",
+  "En rango": "#6ea858",
+  "Alto": "#c18937",
+  "Bajo": "#c05050",
 };
 
 export function TimeInRange({ period }: { period: Period }) {
@@ -35,9 +35,9 @@ export function TimeInRange({ period }: { period: Period }) {
         </PieChart>
       </ResponsiveContainer>
       <p className="tir-detail">
-        <span style={{ color: "#f59e0b" }}>Alto {data.high_pct}%</span>
+        <span style={{ color: "#c18937" }}>Alto {data.high_pct}%</span>
         {" · "}
-        <span style={{ color: "#ef4444" }}>Bajo {data.low_pct}%</span>
+        <span style={{ color: "#c05050" }}>Bajo {data.low_pct}%</span>
       </p>
     </div>
   );

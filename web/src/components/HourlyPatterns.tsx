@@ -25,9 +25,9 @@ export function HourlyPatterns({ period }: { period: Period }) {
             formatter={(v: unknown) => [`${v} mg/dL`]}
             labelFormatter={(h: unknown) => `${h}:00hs`}
           />
-          <ReferenceLine y={TARGET_LOW} stroke="#ef4444" strokeDasharray="4 4" />
-          <ReferenceLine y={TARGET_HIGH} stroke="#f59e0b" strokeDasharray="4 4" />
-          <Bar dataKey="avg" fill="#3b82f6" name="Promedio" radius={[3, 3, 0, 0]} />
+          <ReferenceLine y={TARGET_LOW} stroke="#c05050" strokeDasharray="4 4" />
+          <ReferenceLine y={TARGET_HIGH} stroke="#c18937" strokeDasharray="4 4" />
+          <Bar dataKey="avg" fill="#7d9e72" name="Promedio" radius={[3, 3, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

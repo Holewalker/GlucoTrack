@@ -14,9 +14,9 @@ const TARGET_LOW = 60;
 const TARGET_HIGH = 140;
 
 function statusColor(value: number): string {
-  if (value < TARGET_LOW) return "#ef4444";
-  if (value > TARGET_HIGH) return "#f59e0b";
-  return "#10b981";
+  if (value < TARGET_LOW) return "#c05050";
+  if (value > TARGET_HIGH) return "#c18937";
+  return "#6ea858";
 }
 
 export function CurrentGlucose() {

@@ -1,3 +1,8 @@
+import {
+  startOfDay, endOfDay, startOfWeek, endOfWeek,
+  startOfMonth, endOfMonth, subMonths,
+} from "date-fns";
+
 export interface GlucoseReading {
   id: number;
   timestamp: string;
@@ -36,13 +41,29 @@ export interface OverlaySeries {
   data: Array<{ x: number; value: number }>;
 }
 
+export interface Settings {
+  target_low: number;
+  target_high: number;
+}
+
 export type Period = "1d" | "7d" | "30d" | "90d";
 
+export function periodToRange(period: Period): { from: Date; to: Date } {
+  const now = new Date();
+  switch (period) {
+    case "1d":
+      return { from: startOfDay(now), to: endOfDay(now) };
+    case "7d":
+      return { from: startOfWeek(now, { weekStartsOn: 1 }), to: endOfWeek(now, { weekStartsOn: 1 }) };
+    case "30d":
+      return { from: startOfMonth(now), to: endOfMonth(now) };
+    case "90d":
+      return { from: startOfMonth(subMonths(now, 2)), to: endOfMonth(now) };
+  }
+}
+
 function periodToDates(period: Period): { from: string; to: string } {
-  const to = new Date();
-  const from = new Date(to);
-  const days: Record<Period, number> = { "1d": 1, "7d": 7, "30d": 30, "90d": 90 };
-  from.setDate(from.getDate() - days[period]);
+  const { from, to } = periodToRange(period);
   return { from: from.toISOString(), to: to.toISOString() };
 }
 
@@ -57,6 +78,7 @@ async function get<T>(path: string, params?: Record<string, string>): Promise<T>
 }
 
 export const api = {
+  settings: () => get<Settings>("/settings"),
   current: () => get<GlucoseReading>("/glucose/current"),
   history: (period: Period) => {
     const { from, to } = periodToDates(period);

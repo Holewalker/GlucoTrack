@@ -2,14 +2,15 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine,
 } from "recharts";
-import { useHourlyPatterns } from "../hooks/useGlucoseData";
+import { useHourlyPatterns, useSettings } from "../hooks/useGlucoseData";
 import type { Period } from "../api/client";
-
-const TARGET_LOW = 60;
-const TARGET_HIGH = 140;
 
 export function HourlyPatterns({ period }: { period: Period }) {
   const { data, isLoading } = useHourlyPatterns(period);
+  const { data: settings } = useSettings();
+
+  const TARGET_LOW = settings?.target_low ?? 60;
+  const TARGET_HIGH = settings?.target_high ?? 140;
 
   if (isLoading || !data) return <div className="hourly loading">Cargando…</div>;
 

@@ -2,6 +2,14 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import type { Period } from "../api/client";
 
+export function useSettings() {
+  return useQuery({
+    queryKey: ["settings"],
+    queryFn: api.settings,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
 export function useCurrentGlucose() {
   return useQuery({
     queryKey: ["glucose", "current"],

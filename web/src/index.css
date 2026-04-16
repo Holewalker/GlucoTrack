@@ -63,9 +63,45 @@ body::before {
 }
 
 .cat-icon {
-  color: var(--text-2);
   flex-shrink: 0;
   opacity: 0.85;
+  transition: transform 0.2s ease;
+}
+
+.cat-toggle {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 2px;
+  transition: background 0.2s;
+}
+.cat-toggle:hover { background: var(--surface-2, rgba(128,128,128,0.1)); }
+
+.sim-bar {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--surface-2, rgba(128,128,128,0.08));
+  border-radius: 8px;
+  margin-left: auto;
+}
+.sim-btn {
+  all: unset;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  color: var(--sim-color);
+  border: 1.5px solid transparent;
+  transition: all 0.15s;
+}
+.sim-btn:hover { background: rgba(128,128,128,0.08); }
+.sim-btn.active {
+  background: color-mix(in srgb, var(--sim-color) 12%, transparent);
+  border-color: var(--sim-color);
 }
 
 .header-text h1 {
@@ -361,4 +397,205 @@ tr:last-child td {
   .app-header { flex-direction: column; gap: 1rem; }
   .header-brand { gap: 0.6rem; }
   .header-text h1 { font-size: 1.5rem; }
+  .day-selector { gap: 0.25rem; }
+  .day-btn { min-width: 2.5rem; padding: 0.35rem 0.3rem; }
+}
+
+/* ---- View Records Button ---- */
+.view-records-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--border-2);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-2);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.view-records-btn:hover {
+  background: var(--surface-2);
+  border-color: var(--accent-dim);
+  color: var(--accent);
+}
+
+/* ---- Records Page ---- */
+.records-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.records-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.records-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.records-back {
+  all: unset;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: all 0.18s;
+  white-space: nowrap;
+}
+.records-back:hover {
+  color: var(--text-2);
+  border-color: var(--border-2);
+}
+
+/* Day selector — horizontal scroll strip */
+.day-selector {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.day-btn {
+  all: unset;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  min-width: 3rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.day-btn:hover {
+  border-color: var(--border-2);
+  background: var(--surface-2);
+}
+.day-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--accent-dim);
+}
+.day-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+.day-btn.active .day-name { color: var(--accent); }
+.day-num {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-2);
+  line-height: 1;
+}
+.day-btn.active .day-num { color: var(--accent); }
+
+/* Records table */
+.records-table-wrap {
+  background: linear-gradient(150deg, var(--surface-2) 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+}
+
+.records-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.records-table th {
+  text-align: left;
+  padding: 0.45rem 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+.records-table td {
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.92rem;
+}
+.records-table tr:last-child td {
+  border-bottom: none;
+}
+
+.record-time {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-2);
+}
+
+.record-value {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.value-pill {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+}
+.value-pill.in-range { color: var(--in-range); }
+.value-pill.high { color: var(--high); }
+.value-pill.low { color: var(--low); }
+
+.record-unit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.record-trend {
+  font-size: 1.1rem;
+  color: var(--text-2);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.status-dot.in-range { background: var(--in-range); }
+.status-dot.high { background: var(--high); }
+.status-dot.low { background: var(--low); }
+
+.records-count {
+  margin-top: 0.75rem;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.records-loading,
+.records-empty {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.95rem;
+  padding: 2rem;
+  text-align: center;
+  background: linear-gradient(150deg, var(--surface-2) 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }

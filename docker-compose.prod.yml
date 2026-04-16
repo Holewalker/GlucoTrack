@@ -1,0 +1,49 @@
+services:
+  api:
+    build: ./api
+    env_file: .env
+    volumes:
+      - glucose-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/glucose/current"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  web:
+    build: ./web
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - web
+    restart: unless-stopped
+    environment:
+      - DOMAIN=${DOMAIN}
+      - DASH_USER=${DASH_USER}
+      - DASH_PASSWORD_HASH=${DASH_PASSWORD_HASH}
+
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    environment:
+      - SUBDOMAINS=${DUCKDNS_SUBDOMAIN}
+      - TOKEN=${DUCKDNS_TOKEN}
+      - UPDATE_IP=ipv4
+    restart: unless-stopped
+
+volumes:
+  glucose-data:
+  caddy-data:
+  caddy-config:

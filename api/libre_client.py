@@ -8,64 +8,81 @@ _HEADERS = {
 }
 
 
+class LibreViewError(Exception):
+    """Raised when LibreView returns a non-zero status."""
+    def __init__(self, status: int, message: str):
+        self.status = status
+        super().__init__(f"LibreView error status={status}: {message}")
+
+
+def _check_status(body: dict) -> None:
+    status = body.get("status", 0)
+    if status != 0:
+        msg = body.get("error", {}).get("message", "") or body.get("data", {}).get("message", "") if isinstance(body.get("data"), dict) else ""
+        raise LibreViewError(status, msg)
+
+
 def _auth_headers(token: str) -> dict:
     return {**_HEADERS, "authorization": f"Bearer {token}"}
+
+
+async def _post(client: httpx.AsyncClient, url: str, **kwargs) -> dict:
+    resp = await client.post(url, **kwargs)
+    resp.raise_for_status()
+    body = resp.json()
+    _check_status(body)
+    return body
+
+
+async def _get(client: httpx.AsyncClient, url: str, **kwargs) -> dict:
+    resp = await client.get(url, **kwargs)
+    resp.raise_for_status()
+    body = resp.json()
+    _check_status(body)
+    return body
 
 
 async def authenticate(
     email: str, password: str, client: httpx.AsyncClient | None = None
 ) -> str:
+    async def _do(c: httpx.AsyncClient) -> str:
+        body = await _post(
+            c, f"{BASE_URL}/llu/auth/login",
+            json={"email": email, "password": password},
+            headers=_HEADERS,
+        )
+        return body["data"]["authTicket"]["token"]
+
     if client is not None:
-        resp = await client.post(
-            f"{BASE_URL}/llu/auth/login",
-            json={"email": email, "password": password},
-            headers=_HEADERS,
-        )
-        resp.raise_for_status()
-        return resp.json()["data"]["authTicket"]["token"]
+        return await _do(client)
     async with httpx.AsyncClient() as c:
-        resp = await c.post(
-            f"{BASE_URL}/llu/auth/login",
-            json={"email": email, "password": password},
-            headers=_HEADERS,
-        )
-        resp.raise_for_status()
-        return resp.json()["data"]["authTicket"]["token"]
+        return await _do(c)
 
 
 async def get_patient_id(
     token: str, client: httpx.AsyncClient | None = None
 ) -> str:
+    async def _do(c: httpx.AsyncClient) -> str:
+        body = await _get(c, f"{BASE_URL}/llu/connections", headers=_auth_headers(token))
+        return body["data"][0]["patientId"]
+
     if client is not None:
-        resp = await client.get(
-            f"{BASE_URL}/llu/connections",
-            headers=_auth_headers(token),
-        )
-        resp.raise_for_status()
-        return resp.json()["data"][0]["patientId"]
+        return await _do(client)
     async with httpx.AsyncClient() as c:
-        resp = await c.get(
-            f"{BASE_URL}/llu/connections",
-            headers=_auth_headers(token),
-        )
-        resp.raise_for_status()
-        return resp.json()["data"][0]["patientId"]
+        return await _do(c)
 
 
 async def get_cgm_data(
     token: str, patient_id: str, client: httpx.AsyncClient | None = None
 ) -> dict:
+    async def _do(c: httpx.AsyncClient) -> dict:
+        body = await _get(
+            c, f"{BASE_URL}/llu/connections/{patient_id}/graph",
+            headers=_auth_headers(token),
+        )
+        return body["data"]
+
     if client is not None:
-        resp = await client.get(
-            f"{BASE_URL}/llu/connections/{patient_id}/graph",
-            headers=_auth_headers(token),
-        )
-        resp.raise_for_status()
-        return resp.json()["data"]
+        return await _do(client)
     async with httpx.AsyncClient() as c:
-        resp = await c.get(
-            f"{BASE_URL}/llu/connections/{patient_id}/graph",
-            headers=_auth_headers(token),
-        )
-        resp.raise_for_status()
-        return resp.json()["data"]
+        return await _do(c)

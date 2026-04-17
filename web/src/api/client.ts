@@ -1,6 +1,6 @@
 import {
   startOfDay, endOfDay, startOfWeek, endOfWeek,
-  startOfMonth, endOfMonth, subMonths,
+  startOfMonth, endOfMonth, subMonths, format,
 } from "date-fns";
 
 export interface GlucoseReading {
@@ -62,9 +62,11 @@ export function periodToRange(period: Period): { from: Date; to: Date } {
   }
 }
 
+const LOCAL_DT = "yyyy-MM-dd'T'HH:mm:ss";
+
 function periodToDates(period: Period): { from: string; to: string } {
   const { from, to } = periodToRange(period);
-  return { from: from.toISOString(), to: to.toISOString() };
+  return { from: format(from, LOCAL_DT), to: format(to, LOCAL_DT) };
 }
 
 const BASE = "/api";

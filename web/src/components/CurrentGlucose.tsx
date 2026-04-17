@@ -3,11 +3,13 @@ import { es } from "date-fns/locale";
 import { useCurrentGlucose, useSettings } from "../hooks/useGlucoseData";
 
 const TREND_ARROWS: Record<number, string> = {
-  1: "↑↑",
-  2: "↑",
-  3: "→",
-  4: "↓",
-  5: "↓↓",
+  1: "↓↓",
+  2: "↓",
+  3: "↘",
+  4: "→",
+  5: "↗",
+  6: "↑",
+  7: "↑↑",
 };
 
 function statusColor(value: number, targetLow: number, targetHigh: number): string {

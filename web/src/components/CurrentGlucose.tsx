@@ -4,7 +4,7 @@ import { useCurrentGlucose, useSettings } from "../hooks/useGlucoseData";
 
 const TREND_ARROWS: Record<number, string> = {
   1: "↓↓",
-  2: "↓",
+  2: "↘",
   3: "→",
   4: "↗",
   5: "↑↑",

@@ -599,3 +599,192 @@ tr:last-child td {
   border: 1px solid var(--border);
   border-radius: var(--radius);
 }
+
+/* ---- Settings Panel ---- */
+.settings-panel {
+  background: linear-gradient(150deg, var(--surface-2) 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.375rem 1.5rem 1.25rem;
+}
+
+.settings-panel h2 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-2);
+  letter-spacing: 0.02em;
+  margin-bottom: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.settings-panel h2::before {
+  content: '';
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  margin-bottom: 1px;
+}
+
+/* Range bar */
+.sp-range-bar {
+  position: relative;
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: visible;
+  margin-bottom: 0.3rem;
+}
+.sp-bar-low {
+  background: color-mix(in srgb, var(--low) 35%, var(--surface));
+  border-radius: 4px 0 0 4px;
+  transition: width 0.25s ease;
+  min-width: 4px;
+}
+.sp-bar-range {
+  background: color-mix(in srgb, var(--in-range) 45%, var(--surface));
+  transition: width 0.25s ease;
+}
+.sp-bar-high {
+  background: color-mix(in srgb, var(--high) 35%, var(--surface));
+  border-radius: 0 4px 4px 0;
+  transition: width 0.25s ease;
+  flex: 1;
+}
+.sp-marker {
+  position: absolute;
+  top: -3px;
+  width: 2px;
+  height: 14px;
+  border-radius: 1px;
+  transform: translateX(-50%);
+  transition: left 0.25s ease;
+}
+.sp-marker-low  { background: var(--low); }
+.sp-marker-high { background: var(--high); }
+
+/* Scale labels */
+.sp-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  margin-bottom: 1rem;
+}
+
+/* Inputs row */
+.sp-inputs {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.sp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1;
+}
+
+.sp-field label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.sp-field-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sp-dot-low  { background: var(--low); }
+.sp-dot-high { background: var(--high); }
+
+.sp-input-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0.45rem 0.75rem;
+  transition: border-color 0.18s;
+}
+.sp-input-wrap:focus-within {
+  border-color: var(--border-2);
+}
+
+.sp-input-wrap input {
+  all: unset;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text);
+  width: 3.5ch;
+  text-align: right;
+  letter-spacing: -0.01em;
+}
+.sp-input-wrap input::-webkit-inner-spin-button,
+.sp-input-wrap input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.sp-input-wrap input[type=number] { -moz-appearance: textfield; }
+
+.sp-unit {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.sp-divider {
+  width: 1px;
+  height: 2.5rem;
+  background: var(--border);
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin-bottom: 0.45rem;
+}
+
+.sp-save {
+  all: unset;
+  cursor: pointer;
+  padding: 0.5rem 1.25rem;
+  border-radius: 7px;
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  transition: background 0.18s, color 0.18s, opacity 0.18s;
+  white-space: nowrap;
+  align-self: flex-end;
+}
+.sp-save:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+.sp-save:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.sp-error {
+  margin-top: 0.65rem;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--low);
+  letter-spacing: 0.02em;
+}

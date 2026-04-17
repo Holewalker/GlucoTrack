@@ -19,9 +19,10 @@ async def time_in_range(
 ):
     from_dt, to_dt = _defaults(from_dt, to_dt)
     async with aiosqlite.connect(settings.db_path) as conn:
-        return await database.get_time_in_range(
-            conn, from_dt, to_dt, settings.target_low, settings.target_high
-        )
+        db_settings = await database.get_settings(conn)
+        low = db_settings["target_low"] if db_settings else settings.target_low
+        high = db_settings["target_high"] if db_settings else settings.target_high
+        return await database.get_time_in_range(conn, from_dt, to_dt, low, high)
 
 
 @router.get("/hourly-patterns")
@@ -41,6 +42,7 @@ async def events(
 ):
     from_dt, to_dt = _defaults(from_dt, to_dt)
     async with aiosqlite.connect(settings.db_path) as conn:
-        return await database.get_events(
-            conn, from_dt, to_dt, settings.target_low, settings.target_high
-        )
+        db_settings = await database.get_settings(conn)
+        low = db_settings["target_low"] if db_settings else settings.target_low
+        high = db_settings["target_high"] if db_settings else settings.target_high
+        return await database.get_events(conn, from_dt, to_dt, low, high)

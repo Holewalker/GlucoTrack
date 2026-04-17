@@ -17,7 +17,34 @@ async def init_db(conn: aiosqlite.Connection) -> None:
     await conn.execute(
         "CREATE INDEX IF NOT EXISTS idx_timestamp ON glucose_readings(timestamp)"
     )
+    await init_user_settings(conn)
     await conn.commit()
+
+
+async def init_user_settings(conn: aiosqlite.Connection) -> None:
+    await conn.execute("""
+        CREATE TABLE IF NOT EXISTS user_settings (
+            id          INTEGER PRIMARY KEY,
+            target_low  INTEGER NOT NULL,
+            target_high INTEGER NOT NULL
+        )
+    """)
+
+
+async def get_settings(conn: aiosqlite.Connection) -> dict | None:
+    conn.row_factory = aiosqlite.Row
+    async with conn.execute("SELECT target_low, target_high FROM user_settings WHERE id = 1") as cur:
+        row = await cur.fetchone()
+    return dict(row) if row else None
+
+
+async def upsert_settings(conn: aiosqlite.Connection, target_low: int, target_high: int) -> dict:
+    await conn.execute(
+        "INSERT OR REPLACE INTO user_settings (id, target_low, target_high) VALUES (1, ?, ?)",
+        (target_low, target_high),
+    )
+    await conn.commit()
+    return {"target_low": target_low, "target_high": target_high}
 
 
 async def upsert_readings(conn: aiosqlite.Connection, readings: list[dict]) -> None:

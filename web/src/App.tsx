@@ -5,6 +5,7 @@ import { TimeInRange } from "./components/TimeInRange";
 import { HourlyPatterns } from "./components/HourlyPatterns";
 import { EventsTable } from "./components/EventsTable";
 import { RecordsPage } from "./components/RecordsPage";
+import { SettingsPanel } from "./components/SettingsPanel";
 import { useCurrentGlucose, useSettings } from "./hooks/useGlucoseData";
 import type { Period } from "./api/client";
 
@@ -185,6 +186,8 @@ export default function App() {
           <HourlyPatterns period={period} />
 
           <EventsTable period={period} />
+
+          <SettingsPanel />
 
           <button className="view-records-btn" onClick={() => setPage("records")}>
             Ver registros

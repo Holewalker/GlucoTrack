@@ -6,11 +6,9 @@ import aiosqlite
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from fastapi import APIRouter
-
 from api.config import settings
 from api import database, poller
-from api.routers import glucose, stats
+from api.routers import glucose, stats, settings as settings_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -45,13 +43,4 @@ app.add_middleware(
 
 app.include_router(glucose.router, prefix="/api")
 app.include_router(stats.router, prefix="/api")
-
-settings_router = APIRouter()
-
-
-@settings_router.get("/api/settings")
-async def get_settings():
-    return {"target_low": settings.target_low, "target_high": settings.target_high}
-
-
-app.include_router(settings_router)
+app.include_router(settings_router.router, prefix="/api")

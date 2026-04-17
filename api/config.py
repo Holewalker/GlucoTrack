@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     poll_interval_minutes: int = 5
     db_path: str = "/data/glucose.db"
 
-    model_config = {"env_file": ".env"}
+    model_config = {"env_file": ".env", "extra": "ignore"}
 
 
 settings = Settings()

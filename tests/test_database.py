@@ -1,6 +1,6 @@
 import pytest
 import aiosqlite
-from api.database import init_db, upsert_readings, get_latest, get_readings
+from api.database import init_db, upsert_readings, get_latest, get_readings, get_settings, upsert_settings
 from datetime import datetime
 
 
@@ -69,3 +69,23 @@ async def test_get_readings_range(db):
     results = await get_readings(db, from_dt, to_dt)
     assert len(results) == 2
     assert results[0]["value_mgdl"] == 95
+
+
+async def test_get_settings_empty(db):
+    result = await get_settings(db)
+    assert result is None
+
+
+async def test_upsert_settings_creates_row(db):
+    result = await upsert_settings(db, 60, 140)
+    assert result == {"target_low": 60, "target_high": 140}
+    row = await get_settings(db)
+    assert row == {"target_low": 60, "target_high": 140}
+
+
+async def test_upsert_settings_overwrites(db):
+    await upsert_settings(db, 60, 140)
+    result = await upsert_settings(db, 70, 160)
+    assert result == {"target_low": 70, "target_high": 160}
+    row = await get_settings(db)
+    assert row == {"target_low": 70, "target_high": 160}

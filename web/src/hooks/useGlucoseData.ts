@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "../api/client";
 import type { Period } from "../api/client";
 
@@ -7,6 +7,17 @@ export function useSettings() {
     queryKey: ["settings"],
     queryFn: api.settings,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useUpdateSettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: api.updateSettings,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["settings"] });
+      queryClient.invalidateQueries({ queryKey: ["stats"] });
+    },
   });
 }
 

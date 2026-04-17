@@ -79,8 +79,19 @@ async function get<T>(path: string, params?: Record<string, string>): Promise<T>
   return res.json();
 }
 
+async function patch<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(BASE + path, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  return res.json();
+}
+
 export const api = {
   settings: () => get<Settings>("/settings"),
+  updateSettings: (data: Partial<Settings>) => patch<Settings>("/settings", data),
   current: () => get<GlucoseReading>("/glucose/current"),
   history: (period: Period) => {
     const { from, to } = periodToDates(period);

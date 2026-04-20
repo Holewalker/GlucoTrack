@@ -5,7 +5,7 @@ from datetime import datetime
 import aiosqlite
 import httpx
 
-from api import database, libre_client
+from api import database, libre_client, predictor
 from api.libre_client import LibreViewError
 from api.config import settings
 
@@ -51,6 +51,12 @@ async def poll_once() -> None:
 
         async with aiosqlite.connect(settings.db_path) as conn:
             await database.upsert_readings(conn, readings)
+            db_settings = await database.get_settings(conn)
+            s = db_settings or {"target_low": settings.target_low, "target_high": settings.target_high}
+            try:
+                await predictor.evaluate(conn, s)
+            except Exception as exc:
+                logger.error("Predictor error: %s", exc)
 
         logger.info("Polled %d readings", len(readings))
 

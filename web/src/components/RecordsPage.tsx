@@ -4,31 +4,16 @@ import { es } from "date-fns/locale";
 import { useHistory, useSettings } from "../hooks/useGlucoseData";
 import { periodToRange } from "../api/client";
 import type { Period } from "../api/client";
+import { trendArrowSymbol } from "../lib/trend";
 
 interface Props {
   period: Period;
   onBack: () => void;
 }
 
-function trendArrowSymbol(arrow: number | null): string {
-  switch (arrow) {
-    case 1: return "↓↓";
-    case 2: return "↓";
-    case 3: return "↘";
-    case 4: return "→";
-    case 5: return "↗";
-    case 6: return "↑";
-    case 7: return "↑↑";
-    default: return "";
-  }
-}
-
 export function RecordsPage({ period, onBack }: Props) {
   const { from: rangeFrom, to: rangeTo } = periodToRange(period);
-  const days = useMemo(
-    () => eachDayOfInterval({ start: rangeFrom, end: rangeTo }).reverse(),
-    [rangeFrom.getTime(), rangeTo.getTime()],
-  );
+  const days = eachDayOfInterval({ start: rangeFrom, end: rangeTo }).reverse();
 
   const [selectedDay, setSelectedDay] = useState<Date>(days[0]);
   const dayStart = startOfDay(selectedDay);
@@ -43,7 +28,7 @@ export function RecordsPage({ period, onBack }: Props) {
     return allData
       .filter((r) => startOfDay(new Date(r.timestamp)).getTime() === dayStart.getTime())
       .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  }, [allData, dayStart.getTime()]);
+  }, [allData, dayStart]);
 
   const showDaySelector = period !== "1d";
 

@@ -5,8 +5,10 @@ import { TimeInRange } from "./components/TimeInRange";
 import { HourlyPatterns } from "./components/HourlyPatterns";
 import { EventsTable } from "./components/EventsTable";
 import { RecordsPage } from "./components/RecordsPage";
-import { SettingsPanel } from "./components/SettingsPanel";
-import { useCurrentGlucose, useSettings } from "./hooks/useGlucoseData";
+import { AlertBanner } from "./components/AlertBanner";
+import { AlertsPage } from "./components/AlertsPage";
+import { SettingsPage } from "./components/SettingsPage";
+import { useCurrentGlucose, useSettings, useRefreshDashboard } from "./hooks/useGlucoseData";
 import type { Period } from "./api/client";
 
 const PERIODS: { label: string; value: Period }[] = [
@@ -118,7 +120,14 @@ const SIM_MOODS: { mood: CatMood; label: string; desc: string }[] = [
   { mood: "alert", label: "Alta", desc: "> target_high" },
 ];
 
-type Page = "dashboard" | "records";
+type Page = "dashboard" | "records" | "alerts" | "settings";
+
+const NAV_TABS: { label: string; value: Page }[] = [
+  { label: "Dashboard", value: "dashboard" },
+  { label: "Registros", value: "records" },
+  { label: "Alertas", value: "alerts" },
+  { label: "Configuración", value: "settings" },
+];
 
 export default function App() {
   const [period, setPeriod] = useState<Period>("1d");
@@ -126,6 +135,7 @@ export default function App() {
   const [simMood, setSimMood] = useState<CatMood | null>(null);
   const { data: glucose } = useCurrentGlucose();
   const { data: settings } = useSettings();
+  const refreshDashboard = useRefreshDashboard();
   const realMood = getCatMood(glucose?.value_mgdl, settings?.target_low ?? 60, settings?.target_high ?? 140);
   const mood = simMood ?? realMood;
 
@@ -159,23 +169,49 @@ export default function App() {
             ))}
           </div>
         )}
-        <nav className="period-selector">
-          {PERIODS.map((p) => (
-            <button
-              key={p.value}
-              onClick={() => setPeriod(p.value)}
-              className={period === p.value ? "active" : ""}
-            >
-              {p.label}
-            </button>
-          ))}
-        </nav>
+        <div className="header-nav-group">
+          <nav className="page-nav">
+            {NAV_TABS.map((t) => (
+              <button
+                key={t.value}
+                onClick={() => setPage(t.value)}
+                className={page === t.value ? "active" : ""}
+              >
+                {t.label}
+              </button>
+            ))}
+          </nav>
+
+          {(page === "dashboard" || page === "records") && (
+            <div className="period-row">
+              <nav className="period-selector">
+                {PERIODS.map((p) => (
+                  <button
+                    key={p.value}
+                    onClick={() => setPeriod(p.value)}
+                    className={period === p.value ? "active" : ""}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </nav>
+              <button className="refresh-btn" onClick={refreshDashboard} title="Actualizar datos">
+                ↺
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
-      {page === "records" ? (
+      {page === "records" && (
         <RecordsPage period={period} onBack={() => setPage("dashboard")} />
-      ) : (
+      )}
+      {page === "alerts" && <AlertsPage />}
+      {page === "settings" && <SettingsPage />}
+      {page === "dashboard" && (
         <main className="dashboard">
+          <AlertBanner onViewHistory={() => setPage("alerts")} />
+
           <CurrentGlucose />
 
           <div className="row-two">
@@ -186,12 +222,6 @@ export default function App() {
           <HourlyPatterns period={period} />
 
           <EventsTable period={period} />
-
-          <SettingsPanel />
-
-          <button className="view-records-btn" onClick={() => setPage("records")}>
-            Ver registros
-          </button>
         </main>
       )}
     </div>

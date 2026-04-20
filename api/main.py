@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.config import settings
 from api import database, poller
-from api.routers import glucose, stats, settings as settings_router
+from api.routers import glucose, stats, settings as settings_router, alerts, telegram as telegram_router
 
 logging.basicConfig(level=logging.INFO)
 
@@ -44,3 +44,5 @@ app.add_middleware(
 app.include_router(glucose.router, prefix="/api")
 app.include_router(stats.router, prefix="/api")
 app.include_router(settings_router.router, prefix="/api")
+app.include_router(alerts.router, prefix="/api")
+app.include_router(telegram_router.router, prefix="/api")

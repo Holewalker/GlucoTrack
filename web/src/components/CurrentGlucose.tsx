@@ -1,14 +1,7 @@
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { useCurrentGlucose, useSettings } from "../hooks/useGlucoseData";
-
-const TREND_ARROWS: Record<number, string> = {
-  1: "↓↓",
-  2: "↘",
-  3: "→",
-  4: "↗",
-  5: "↑↑",
-};
+import { trendArrowSymbol } from "../lib/trend";
 
 function statusColor(value: number, targetLow: number, targetHigh: number): string {
   if (value < targetLow) return "#c05050";
@@ -24,7 +17,7 @@ export function CurrentGlucose() {
   if (error || !data) return <div className="current-glucose error">Sin datos</div>;
 
   const color = statusColor(data.value_mgdl, settings?.target_low ?? 60, settings?.target_high ?? 140);
-  const arrow = data.trend_arrow ? (TREND_ARROWS[data.trend_arrow] ?? null) : null;
+  const arrow = trendArrowSymbol(data.trend_arrow) || null;
   const ago = formatDistanceToNow(new Date(data.timestamp), {
     addSuffix: true,
     locale: es,

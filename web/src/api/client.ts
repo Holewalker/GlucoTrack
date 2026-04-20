@@ -44,6 +44,49 @@ export interface OverlaySeries {
 export interface Settings {
   target_low: number;
   target_high: number;
+  predictor_enabled: number;
+  prediction_window_minutes: number;
+  lookback_minutes: number;
+  min_readings: number;
+  alert_cooldown_minutes: number;
+  telegram_bot_token_set: boolean;
+}
+
+export interface Alert {
+  id: number;
+  alert_type: "hypo" | "hyper";
+  created_at: string;
+  triggered_value: number;
+  projected_value: number;
+  minutes_to_hypo: number;
+  slope: number;
+  confidence: "high" | "normal" | "low";
+  trend_arrow: number | null;
+  status: "active" | "resolved" | "expired";
+  resolved_at: string | null;
+  telegram_sent: boolean;
+  feedback: "accurate" | "false_alarm" | null;
+  live_current_value?: number;
+  live_projected_value?: number;
+  live_minutes_to_hypo?: number;
+  live_slope?: number;
+  live_confidence?: "high" | "normal" | "low";
+  live_trend_arrow?: number | null;
+}
+
+export interface AlertStats {
+  total: number;
+  accurate_count: number;
+  false_alarm_count: number;
+  feedback_pending_count: number;
+}
+
+export interface TelegramRecipient {
+  id: number;
+  chat_id: string;
+  label: string;
+  enabled: number;
+  created_at: string;
 }
 
 export type Period = "1d" | "7d" | "30d" | "90d";
@@ -89,6 +132,22 @@ async function patch<T>(path: string, body: unknown): Promise<T> {
   return res.json();
 }
 
+async function post<T>(path: string, body?: unknown): Promise<T> {
+  const res = await fetch(BASE + path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (res.status === 204) return undefined as T;
+  return res.json();
+}
+
+async function deleteReq(path: string): Promise<void> {
+  const res = await fetch(BASE + path, { method: "DELETE" });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+}
+
 export const api = {
   settings: () => get<Settings>("/settings"),
   updateSettings: (data: Partial<Settings>) => patch<Settings>("/settings", data),
@@ -113,4 +172,19 @@ export const api = {
     const { from, to } = periodToDates(period);
     return get<OverlaySeries[]>("/glucose/overlay", { from, to, group_by: groupBy });
   },
+  // Alerts
+  activeAlert: () => get<Alert>("/alerts/active"),
+  alerts: (params?: Record<string, string>) => get<Alert[]>("/alerts", params),
+  alertStats: (params?: Record<string, string>) => get<AlertStats>("/alerts/stats", params),
+  patchAlertFeedback: (id: number, feedback: string) =>
+    patch<Alert>(`/alerts/${id}`, { feedback }),
+  // Telegram recipients
+  telegramRecipients: () => get<TelegramRecipient[]>("/telegram/recipients"),
+  createRecipient: (data: { chat_id: string; label: string; enabled?: number }) =>
+    post<TelegramRecipient>("/telegram/recipients", data),
+  updateRecipient: (id: number, data: Partial<TelegramRecipient>) =>
+    patch<TelegramRecipient>(`/telegram/recipients/${id}`, data),
+  deleteRecipient: (id: number) => deleteReq(`/telegram/recipients/${id}`),
+  detectChatId: () => post<{ chat_id: string; name: string; type: string }[]>("/telegram/detect-chat-id"),
+  sendTest: () => post<{ results: { chat_id: string; label: string; sent: boolean }[] }>("/telegram/test"),
 };

@@ -47,17 +47,23 @@ async def test_get_settings_returns_db_row(client, tmp_path, monkeypatch):
 async def test_patch_persists_and_get_reflects(client):
     res = await client.patch("/api/settings", json={"target_low": 65, "target_high": 150})
     assert res.status_code == 200
-    assert res.json() == {"target_low": 65, "target_high": 150}
+    data = res.json()
+    assert data["target_low"] == 65
+    assert data["target_high"] == 150
 
     get_res = await client.get("/api/settings")
-    assert get_res.json() == {"target_low": 65, "target_high": 150}
+    get_data = get_res.json()
+    assert get_data["target_low"] == 65
+    assert get_data["target_high"] == 150
 
 
 async def test_patch_partial_merges_with_current(client):
     await client.patch("/api/settings", json={"target_low": 65, "target_high": 150})
     res = await client.patch("/api/settings", json={"target_high": 160})
     assert res.status_code == 200
-    assert res.json() == {"target_low": 65, "target_high": 160}
+    data = res.json()
+    assert data["target_low"] == 65
+    assert data["target_high"] == 160
 
 
 async def test_patch_low_ge_high_returns_422(client):

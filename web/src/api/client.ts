@@ -112,6 +112,13 @@ function periodToDates(period: Period): { from: string; to: string } {
   return { from: format(from, LOCAL_DT), to: format(to, LOCAL_DT) };
 }
 
+const PERIOD_BIN_MINUTES: Record<Period, number> = {
+  "1d":  0,   // raw
+  "7d":  30,  // 30-min bins → ~336 pts
+  "30d": 60,  // 1-hour bins → ~720 pts
+  "90d": 180, // 3-hour bins → ~720 pts
+};
+
 const BASE = "/api";
 
 async function get<T>(path: string, params?: Record<string, string>): Promise<T> {
@@ -154,7 +161,8 @@ export const api = {
   current: () => get<GlucoseReading>("/glucose/current"),
   history: (period: Period) => {
     const { from, to } = periodToDates(period);
-    return get<GlucoseReading[]>("/glucose/history", { from, to });
+    const bin_minutes = PERIOD_BIN_MINUTES[period];
+    return get<GlucoseReading[]>("/glucose/history", bin_minutes > 0 ? { from, to, bin_minutes } : { from, to });
   },
   timeInRange: (period: Period) => {
     const { from, to } = periodToDates(period);

@@ -173,6 +173,37 @@ async def get_readings(
     return [dict(r) for r in rows]
 
 
+async def get_readings_sampled(
+    conn: aiosqlite.Connection,
+    from_dt: datetime,
+    to_dt: datetime,
+    bin_seconds: int,
+) -> list[dict]:
+    """Return time-bucketed average readings for dense period views."""
+    conn.row_factory = aiosqlite.Row
+    async with conn.execute(
+        """
+        SELECT
+          datetime(
+            CAST(strftime('%s', timestamp) / :bin AS INTEGER) * :bin,
+            'unixepoch'
+          ) AS timestamp,
+          CAST(ROUND(AVG(value_mgdl)) AS INTEGER) AS value_mgdl,
+          NULL AS trend_arrow,
+          0 AS is_high,
+          0 AS is_low,
+          1 AS measurement_color
+        FROM glucose_readings
+        WHERE timestamp BETWEEN :from_dt AND :to_dt
+        GROUP BY CAST(strftime('%s', timestamp) / :bin AS INTEGER)
+        ORDER BY timestamp
+        """,
+        {"bin": bin_seconds, "from_dt": from_dt.isoformat(), "to_dt": to_dt.isoformat()},
+    ) as cur:
+        rows = await cur.fetchall()
+    return [dict(r) for r in rows]
+
+
 async def get_time_in_range(
     conn: aiosqlite.Connection,
     from_dt: datetime,

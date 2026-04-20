@@ -145,11 +145,11 @@ export function GlucoseChart({ period }: Props) {
             <ReferenceLine y={TARGET_LOW} stroke="#c05050" strokeDasharray="4 4" label="Mín" />
             <ReferenceLine y={TARGET_HIGH} stroke="#c18937" strokeDasharray="4 4" label="Máx" />
             <Line
-              type="monotone"
+              type={period === "1d" ? "monotone" : "basis"}
               dataKey="value"
               stroke="#7d9e72"
               dot={false}
-              strokeWidth={2}
+              strokeWidth={period === "1d" ? 2 : 1.5}
               name="mg/dL"
             />
           </LineChart>

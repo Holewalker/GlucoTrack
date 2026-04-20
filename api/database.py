@@ -78,6 +78,7 @@ async def _migrate_user_settings_columns(conn: aiosqlite.Connection) -> None:
         "ALTER TABLE user_settings ADD COLUMN min_readings INTEGER DEFAULT 5",
         "ALTER TABLE user_settings ADD COLUMN alert_cooldown_minutes INTEGER DEFAULT 10",
         "ALTER TABLE user_settings ADD COLUMN telegram_bot_token TEXT",
+        "ALTER TABLE user_settings ADD COLUMN telegram_last_update_id INTEGER DEFAULT 0",
     ]
     for sql in migrations:
         try:
@@ -99,7 +100,8 @@ async def get_settings(conn: aiosqlite.Connection) -> dict | None:
     conn.row_factory = aiosqlite.Row
     async with conn.execute("""
         SELECT target_low, target_high, predictor_enabled, prediction_window_minutes,
-               lookback_minutes, min_readings, alert_cooldown_minutes, telegram_bot_token
+               lookback_minutes, min_readings, alert_cooldown_minutes, telegram_bot_token,
+               telegram_last_update_id
         FROM user_settings WHERE id = 1
     """) as cur:
         row = await cur.fetchone()

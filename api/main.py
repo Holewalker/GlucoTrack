@@ -11,25 +11,30 @@ from api import database, poller
 from api.routers import glucose, stats, settings as settings_router, alerts, telegram as telegram_router
 
 logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with aiosqlite.connect(settings.db_path) as conn:
         await database.init_db(conn)
-    task = asyncio.create_task(poller.run_poller())
+    poller_task = asyncio.create_task(poller.run_poller())
+    telegram_task = asyncio.create_task(poller.run_telegram_poller())
 
     def _on_poller_done(t: asyncio.Task) -> None:
         if not t.cancelled() and t.exception() is not None:
             logger.error("Poller task died: %s", t.exception(), exc_info=t.exception())
 
-    task.add_done_callback(_on_poller_done)
+    poller_task.add_done_callback(_on_poller_done)
+    telegram_task.add_done_callback(_on_poller_done)
     yield
-    task.cancel()
-    try:
-        await task
-    except asyncio.CancelledError:
-        pass
+    for task in (poller_task, telegram_task):
+        task.cancel()
+    for task in (poller_task, telegram_task):
+        try:
+            await task
+        except asyncio.CancelledError:
+            pass
 
 
 app = FastAPI(title="Glucose Dashboard API", lifespan=lifespan)

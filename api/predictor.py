@@ -87,6 +87,78 @@ def build_live_projection(
     }
 
 
+async def get_prediction_snapshot(conn: aiosqlite.Connection, s: dict) -> dict | None:
+    lookback = s.get("lookback_minutes", 20)
+    min_readings = s.get("min_readings", 5)
+    window = s.get("prediction_window_minutes", 20)
+    target_low = s.get("target_low", 60)
+    target_high = s.get("target_high", 140)
+
+    latest = await database.get_latest(conn)
+    if latest is None:
+        return None
+
+    readings = await database.get_readings_since(conn, lookback)
+    if len(readings) < min_readings:
+        return {
+            "timestamp": latest["timestamp"],
+            "current_value": latest["value_mgdl"],
+            "trend_arrow": latest.get("trend_arrow"),
+            "projected_value": None,
+            "minutes_to_hypo": None,
+            "slope": None,
+            "confidence": None,
+            "alert_type": "hypo" if latest["value_mgdl"] <= target_low else "hyper" if latest["value_mgdl"] >= target_high else None,
+            "state": "in_progress" if latest["value_mgdl"] <= target_low or latest["value_mgdl"] >= target_high else "stable",
+            "window": window,
+        }
+
+    current_value, slope, trend_arrow = _trend_state(readings)
+    projected = current_value + slope * window
+
+    if current_value <= target_low:
+        alert_type = "hypo"
+        state = "in_progress"
+    elif current_value >= target_high:
+        alert_type = "hyper"
+        state = "in_progress"
+    elif slope < SLOPE_NOISE_FLOOR and projected < target_low:
+        alert_type = "hypo"
+        state = "risk"
+    elif slope > SLOPE_CEILING and projected > target_high:
+        alert_type = "hyper"
+        state = "risk"
+    elif slope < 0:
+        alert_type = "hypo"
+        state = "watch"
+    elif slope > 0:
+        alert_type = "hyper"
+        state = "watch"
+    else:
+        alert_type = None
+        state = "stable"
+
+    confidence = _get_confidence(trend_arrow, alert_type) if alert_type else None
+    minutes_to = None
+    if alert_type == "hypo":
+        minutes_to = _minutes_to_threshold(current_value, slope, target_low, alert_type)
+    elif alert_type == "hyper":
+        minutes_to = _minutes_to_threshold(current_value, slope, target_high, alert_type)
+
+    return {
+        "timestamp": readings[-1]["timestamp"],
+        "current_value": int(current_value),
+        "trend_arrow": trend_arrow,
+        "projected_value": int(projected),
+        "minutes_to_hypo": minutes_to,
+        "slope": round(slope, 4),
+        "confidence": confidence,
+        "alert_type": alert_type,
+        "state": state,
+        "window": window,
+    }
+
+
 async def get_live_projection(
     conn: aiosqlite.Connection,
     s: dict,

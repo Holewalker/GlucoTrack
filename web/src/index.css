@@ -424,15 +424,6 @@ tr:last-child td {
   font-size: 0.9rem !important;
 }
 
-/* ---- Responsive ---- */
-@media (max-width: 768px) {
-  .row-two { grid-template-columns: 1fr; }
-  .app-header { flex-direction: column; gap: 1rem; }
-  .header-brand { gap: 0.6rem; }
-  .header-text h1 { font-size: 1.5rem; }
-  .day-selector { gap: 0.25rem; }
-  .day-btn { min-width: 2.5rem; padding: 0.35rem 0.3rem; }
-}
 
 /* ---- View Records Button ---- */
 .view-records-btn {
@@ -1224,4 +1215,230 @@ tr:last-child td {
   border-color: var(--accent-dim);
   color: var(--accent);
   background: var(--accent-dim);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .app { padding: 0.875rem 0.875rem 2.5rem; }
+
+  /* Header stacks vertically */
+  .app-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-bottom: 1.25rem;
+  }
+  .header-brand { gap: 0.6rem; }
+  .header-text h1 { font-size: 1.45rem; }
+
+  /* Nav group fills full width, stacks */
+  .header-nav-group {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.5rem;
+    margin-left: 0;
+  }
+
+  /* Page nav — horizontal scroll, compact */
+  .page-nav {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .page-nav::-webkit-scrollbar { display: none; }
+  .page-nav button {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.82rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Period row — fill width */
+  .period-row { width: 100%; }
+  .period-selector { flex: 1; }
+  .period-selector button {
+    flex: 1;
+    padding: 0.4rem 0.4rem;
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  /* row-two: single column */
+  .row-two { grid-template-columns: 1fr; }
+
+  /* Day selector */
+  .day-selector { gap: 0.25rem; }
+  .day-btn { min-width: 2.5rem; padding: 0.35rem 0.3rem; }
+
+  /* Settings: inputs in 2-col grid, save button spans full width */
+  .sp-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .sp-divider { display: none; }
+  .sp-inputs .sp-save {
+    grid-column: 1 / -1;
+    box-sizing: border-box;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Telegram token row: stack vertically */
+  .tg-token-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tg-token-input { min-width: 0; }
+  .tg-token-row .sp-save {
+    box-sizing: border-box;
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Settings cards: tighter padding */
+  .settings-section { padding: 1rem 1rem; }
+
+  /* Telegram table → mobile list layout */
+  .tg-table { display: block; width: 100%; }
+  .tg-table thead { display: none; }
+  .tg-table tbody { display: flex; flex-direction: column; }
+
+  /* Existing recipient rows: horizontal chip */
+  .tg-table tr {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .tg-table td {
+    display: flex;
+    align-items: center;
+    padding: 0;
+    border: none;
+    font-size: 0.88rem;
+  }
+  .tg-table td:first-child  { flex: 0 0 auto; }
+  .tg-table td:nth-child(2) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tg-table td:nth-child(3) { flex: 0 1 auto; font-size: 0.78rem; color: var(--text-muted); }
+  .tg-table td:last-child   { flex: 0 0 auto; margin-left: auto; }
+
+  /* Add-new row: vertical form */
+  .tg-table tr:last-child {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding-top: 0.75rem;
+    border-bottom: none;
+  }
+  .tg-table tr:last-child td:first-child { display: none; }
+  .tg-table tr:last-child td { flex: none; width: 100%; }
+  .tg-table tr:last-child input {
+    box-sizing: border-box;
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    padding: 0.4rem 0.65rem;
+    outline: none;
+  }
+  .tg-table tr:last-child .sp-save {
+    box-sizing: border-box;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (max-width: 540px) {
+  /* Alert banner stacks */
+  .alert-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.625rem;
+  }
+  .alert-banner-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+  .ab-btn {
+    box-sizing: border-box;
+    flex: 1;
+    min-width: calc(50% - 0.2rem);
+    text-align: center;
+  }
+
+  /* Current glucose */
+  .current-glucose .value { font-size: 2.2rem; }
+  .current-glucose .ago { font-size: 0.78rem; }
+
+  /* Date range inputs stack */
+  .rp-date-row { flex-direction: column; align-items: stretch; }
+  .rp-date-row label { width: 100%; }
+  .rp-date-row input[type="datetime-local"] { flex: 1; min-width: 0; }
+
+  /* Table wrappers: tighter padding */
+  .rp-table-wrap, .records-table-wrap { padding: 0.75rem; }
+
+  /* Alerts table → card layout */
+  .rp-table-wrap { overflow-x: visible; }
+  .rp-table { display: block; width: 100%; }
+  .rp-table thead { display: none; }
+  .rp-table tbody { display: block; }
+
+  .rp-table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 0.4rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Invisible 100%-wide spacer to force line break between L1 and L2 */
+  .rp-table tr::before {
+    content: '';
+    flex: 0 0 100%;
+    order: 5;
+    height: 0.25rem;
+  }
+
+  .rp-table td {
+    display: inline-flex;
+    align-items: center;
+    border: none;
+    padding: 0.05rem 0;
+    font-size: 0.85rem;
+  }
+
+  /* Line 1: hora | tipo | confianza | estado (right) */
+  .rp-table td:nth-child(1) { order: 1; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .rp-table td:nth-child(2) { order: 2; }
+  .rp-table td:nth-child(6) { order: 3; }
+  .rp-table td:nth-child(7) { order: 4; margin-left: auto; font-size: 0.75rem; color: var(--text-muted); }
+
+  /* Line 2: valor → proyectado · min */
+  .rp-table td:nth-child(3) { order: 6; }
+  .rp-table td:nth-child(4) { order: 7; font-size: 0.82rem; color: var(--text-muted); }
+  .rp-table td:nth-child(4)::before { content: " → "; }
+  .rp-table td:nth-child(5) { order: 8; font-size: 0.82rem; color: var(--text-muted); }
+  .rp-table td:nth-child(5)::before { content: " · "; }
+
+  /* Line 3: feedback — full width */
+  .rp-table td:nth-child(8) { order: 9; flex: 0 0 100%; margin-top: 0.15rem; }
+  .rp-table td:nth-child(8) .fb-btn { padding: 0.3rem 0.7rem; font-size: 0.95rem; }
+
+  /* Card padding tighter */
+  .current-glucose,
+  .glucose-chart,
+  .tir,
+  .hourly,
+  .events,
+  .settings-panel {
+    padding: 1rem;
+  }
 }

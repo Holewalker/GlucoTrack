@@ -123,10 +123,10 @@ const SIM_MOODS: { mood: CatMood; label: string; desc: string }[] = [
 type Page = "dashboard" | "records" | "alerts" | "settings";
 
 const NAV_TABS: { label: string; value: Page }[] = [
-  { label: "Dashboard", value: "dashboard" },
+  { label: "Inicio", value: "dashboard" },
   { label: "Registros", value: "records" },
   { label: "Alertas", value: "alerts" },
-  { label: "Configuración", value: "settings" },
+  { label: "Ajustes", value: "settings" },
 ];
 
 export default function App() {

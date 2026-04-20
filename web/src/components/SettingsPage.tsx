@@ -138,6 +138,7 @@ function TelegramSection() {
         </div>
       )}
 
+      <div className="rp-table-wrap" style={{ padding: 0 }}>
       <table className="rp-table tg-table">
         <thead>
           <tr><th>Habilitado</th><th>Nombre</th><th>Chat ID</th><th></th></tr>
@@ -164,6 +165,7 @@ function TelegramSection() {
           </tr>
         </tbody>
       </table>
+      </div>
     </section>
   );
 }

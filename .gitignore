@@ -1,6 +1,7 @@
 libre-link-up-http-dump.md
 .env
 docs/
+scripts/deploy-remote.sh
 
 # Python
 __pycache__/
